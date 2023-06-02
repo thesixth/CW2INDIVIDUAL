@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6MINDS</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container-fluid mt-5">
+            <h1>6MINDS</h1>
+          <div v-if="showProduct">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-sm-6 col-lg-2 col-md-4 col-12">
+                        <button class="btn btn-primary mb-4 mt-6" v-on:click='showCheckout' :disabled="cart.length === 0">
+                   
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span class="badge rounded-pill badge-notification bg-danger">{{cartItemCount}} Cart </span>
+                        </button>
+                    </div>
+                    <div class="col-sm-6 col-lg-2 col-md-4 col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" v-model="sortBySubject" type="checkbox" value="" id="flexCheckChecked">
+                            <label class="form-check-label" for="flexCheckChecked">
+                              Subject
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" v-model="sortByLocation" type="checkbox" value="" id="flexCheckChecked">
+                            <label class="form-check-label" for="flexCheckChecked">
+                              Location
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" v-model="sortByPrice" type="checkbox" value="" id="flexCheckChecked" checked>
+                            <label class="form-check-label" for="flexCheckChecked">
+                              Price
+                            </label>
+                          </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-2 col-md-4 col-12">
+                    
+                  <div class="form-check">
+                    <input class="form-check-input" v-model="ascending" type="checkbox" value="" id="flexCheckChecked" checked>
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Ascending
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" v-model="descending" type="checkbox" value="" id="flexCheckChecked" checked>
+                    <label class="form-check-label" for="flexCheckChecked">
+                      Descending
+                    </label>
+                  </div>
+                    </div>
+                
+                <div class="col-sm-6 col-lg-4 col-md-4 col-12">
+                    <div class="form-group">
+                        <input type="text" v-model="searchInput" placeholder="Search"
+                         class="form-control p-2 ps-3 rounded-0 shadow-0 form-control-lg form-control-a">
+
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="row mt-5">
+                <div class="box col-md-4 col-sm-6 col-lg-3 col-12" v-for="(subject, index) in sortedSubjects">
+                    <div class="product">
+                        <img v-bind:src="subject.image" alt="" width="100%" style="height: 200px;">
+                    <h2 class="name" v-text="subject.title"></h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p style="font-size: 20px;" v-text="subject.location"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p style="font-size: 20px; " v-text="subject.price"></p>
+                        </div>
+                    </div>
+                   
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>spaces: {{subject.availableInventory}}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" id="show" data-target="show1" class="show btn btn-primary float-right" aria-label="Left Align" v-on:click="addToCart(subject)" v-if="canAddToCart(subject)"><i class="fa-solid fa-cart-plus"></i> Add to cart</button>
+                            <button disabled="disabled" v-else type="button" id="show" data-target="show1" class="show btn btn-custom float-right" aria-label="Left Align"><i class="fa-solid fa-cart-plus"></i>Empty</button>
+                            <!-- <button class="btn btn-primary">Add to cart</button> -->
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div v-else="">
+            <div class="row">
+                
+                <div class="col-lg-4" v-for="subject in checkOut()">
+                    <div  class="col-lg-12 p-2">
+                        <div class="p-2 border ">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="mt-2">
+                                    <h4 v-text="subject.title"></h4>
+                                    <div class="mt-4">
+                                        <h5 class=" mb-0" v-text="subject.location"></h5>
+                                        <p class="mb-0">Price: ${{subject.price}}</p>
+
+                                        <button class="btn btn-danger"
+                                            v-on:click="removeCartItem(subject.id)"><small>Remove</small></button>
+                                    </div>
+                                </div>
+                                <div class="image">
+                                    <figure class="mb-0">
+                                        <img v-bind:src="subject.image" alt="" width="120" height="140">
+                                    </figure>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="checkOut() == ''">
+                        <div class="text-center mt-4">
+                            
+                            <p class="mt-2"><strong>Cart Empty</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="still">
+                        <h2 class="mt-5">Checkout</h2>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-outline mb-3 mt-4">
+                                    <input type="text" id="form5Example1" v-model="name"
+                                        class="form-control" />
+                                    <label class="form-label" for="form5Example1">Firstname</label>
+                                </div>
+                            </div>
+                           
+                            <div class="col-6">
+                                <div class="form-outline mb-4 mt-4">
+                                    <input type="number" id="form5Example2" v-model="number"
+                                        class="form-control" />
+                                    <label class="form-label" for="form5Example2">Phone Number</label>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <button class="btn btn-primary" v-on:click="submitForm">Place Order</button>
+                    </div>
+
+                </div>
+            </div>
+          </div>
+           
+           
+       
+        </div>
+    </div>
+    <script src="js/index.js"></script>
+    <script type="text/javascript">
+        //create a new Vue instance
+        //data, computed properties, methods
+        //el: element to be mounted on
+        //data: data to be used in the app
+        //methods: functions to be used in the app
+        //computed properties: properties that depend on other properties
+        //mounted: function to be executed when the app is mounted on the DOM
+        var activities = new Vue({
+            el: '#app',
+            data: { 
+// array of objects to store subjects
+                name: '',
+                number: '',
+                subjects: subjects,
+                showsubjects: true,
+                searchInput: '',
+                sortBySubject: false,
+                sortByLocation: false,
+                sortByPrice: false,
+                sortByAvailability: false,
+                ascending: false,
+                descending : false,
+                itemAddedToCart: false,
+                showProduct: true,
+                cart: [] // array to store items in shopping cart
+            },
+            // computed properties
+            methods: {
+               // add item to cart
+                addToCart(subject) {
+                    this.cart.push(subject)
+                    subject.availableInventory -= 1
+                    console.log(this.cart)
+                },
+                canAddToCart: function(subject) {
+                    return subject.availableInventory > this.cartCount(subject.id);
+                 },
+                 showCheckout() {
+                    this.showProduct = this.showProduct ? false : true;
+                },
+                 checkOut() {
+                    let show = this.cart
+                    return show
+                },
+                // remove item from cart
+                removeCartItem(id) {
+                    let showcart = this.cart
+                    let less = this.subjects
+                    for (let i = 0; i < showcart.length; i++) {
+                        console.log(showcart[i].id)
+                        if (id == showcart[i].id) {
+                            showcart.splice(i, 1)
+
+                        }
+                    }
+                    for (let i = 0; i < less.length; i++) {
+                        console.log(less[i].id)
+                        if (id == less[i].id) {
+                            less[i].stock += 1
+                     }
+                    }
+                },
+                // count items in cart
+            cartCount: function(id) {
+                    let count = 0;
+                    for(let i = 0; i < this.cart.length; i++)
+                    {
+                        if(this.cart[i] === id)
+                        {
+                            count++;
+                        }
+                    }
+                    return count;
+                    // return this.cart.filter(item => item.id === id).length;
+                },
+                
+                showCheckout() {
+                    this.showProduct = this.showProduct ? false : true;
+                },
+                submitForm() {
+                    alert('Order Submitted')
+                    this.name = ''
+                    this.number = ''
+                    this.cart = []
+                    this.showProduct = true
+                    
+                },
+                
+            },
+            computed: { // computed properties  enable you to create a property that can be used to modify,
+                // manipulate, and display data within your components in a readable and efficient manner.
+                sortedSubjects() {
+                 // filter subjects by search input
+                 const filterInput = this.searchInput.toLowerCase();
+                if (this.sortBySubject) {
+                    this.subjects.sort((a, b) => a.title.localeCompare(b.title));
+                }
+                if (this.sortByLocation) {
+                    this.subjects.sort((a, b) => a.location.localeCompare(b.location));
+                }
+                if (this.sortByPrice) {
+                    this.subjects.sort((a, b) => a.price.localeCompare(b.price));
+                }
+              //
+                this.subjects.sort((a, b) => {
+                    if (this.ascending) {
+                        return a.title.localeCompare(b.subject);
+                    }
+                });
+                this.subjects.sort((a, b) => {
+                    if (this.descending) {
+                        return b.title.localeCompare(a.subject);
+                    }
+                });
+                
+                return this.subjects.filter(subject => {
+                    return subject.title.toLowerCase().includes(filterInput) ||
+                    subject.location.toLowerCase().includes(filterInput);
+                });
+            },
+                cartItemCount: function() {
+                    return this.cart.length || '';
+                },
+                
+            },
+
+        })
+    </script>
+</body>
+</html>
